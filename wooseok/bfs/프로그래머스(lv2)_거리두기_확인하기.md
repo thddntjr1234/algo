@@ -79,8 +79,99 @@ class Solution {
     }
 }
 ```
+
 ```java
 // bfs 방식
+
+import java.util.*;
+
+class Solution {
+    private static final int[] dx = {0, 0, -1, 1};
+    private static final int[] dy = {-1, 1, 0, 0};
+
+    public int[] solution(String[][] places) {
+        int[] answer = new int[places.length];
+
+        // 각 대기실별로 bfs 실행
+        for (int i=0; i<places.length; i++) {
+            if (isValidRoom(places[i])) {
+                answer[i] = 1;
+            } else {
+                answer[i] = 0;
+            }
+        }
+
+        return answer;
+    }
+
+    // 각 원소마다 bfs 실행
+    private boolean isValidRoom(String[] room) {
+        for (int x=0; x<room.length; x++) {
+            for (int y=0; y<room[x].length(); y++) {
+                if (room[x].charAt(y) == 'P') {
+                    if (!bfs(room, x, y)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // bfs 통과하면 유효한 거리두기 대기실
+        return true;
+    }
+
+    private boolean bfs(String[] room, int initX, int initY) {
+        // bfs queue
+        Queue<int[]> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[room.length][room[0].length()];
+
+        // 'P' 좌표(최초 너비는 0)
+        queue.offer(new int[]{initX, initY, 0});
+        // 시작 위치는 방문 표시
+        visited[initX][initY] = true;
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+
+            int x = cur[0];
+            int y = cur[1];
+            int distance = cur[2];
+            // 맨해튼 거리 2 초과는 bfs 취소
+            if (distance >= 2) {
+                continue;
+            }
+
+            for (int d=0; d<4; d++) {
+                int nx = x + dx[d];
+                int ny = y + dy[d];
+                int nDistance = distance + 1;
+                // 배열 초과 확인
+                if (nx < 0 || nx >= room.length || ny < 0 || ny >= room[nx].length()) {
+                    continue;
+                }
+
+                // 이미 방문한 좌표인지 확인
+                if (visited[nx][ny]) {
+                    continue;
+                }
+
+                // 파티션이면 bfs 스킵
+                if (room[nx].charAt(ny) == 'X') {
+                    continue;
+                }
+
+                // 'P'가 있으면 맨해튼 거리 2 이내에 다른 응시자가 있음
+                if (room[nx].charAt(ny) == 'P') {
+                    return false;
+                }
+
+                visited[nx][ny] = true;
+                queue.offer(new int[]{nx, ny, nDistance});
+            }
+        }
+
+        return true;
+    }
+}
 
 ```
 ### 문제 링크
